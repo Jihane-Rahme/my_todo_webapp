@@ -1,52 +1,63 @@
 import streamlit as st
-import functions
+import functions  # your get_todos() and write_todos() functions
 
+# --- Load todos ---
 todos = functions.get_todos()
 
+# --- Function to add a new todo ---
 def add_todo():
-    todo = st.session_state["new_todo"] + "\n"
-    todos.append(todo)
-    functions.write_todos(todos)
-    st.session_state["new_todo"] = ""  # clear input
-    st.experimental_rerun()  # refresh app to show new todo
+    new = st.session_state["new_todo"].strip()
+    if new:
+        todos.append(new + "\n")
+        functions.write_todos(todos)
+        st.session_state["new_todo"] = ""  # clear input
 
+# --- App layout ---
 st.title("My Todo App")
-st.subheader("This is my todo app.")
-st.write("This app is to increase your productivity.")
+st.subheader("Increase your productivity!")
 
-# --- Add todo input and button ---
+# Input to add todos
 st.text_input("Add a new todo:", key="new_todo")
 st.button("Add", on_click=add_todo)
 
-# --- Show todos ---
+# --- Display todos with Edit and Done buttons ---
+to_delete = []
+
 for index, todo in enumerate(todos):
-    col1, col2, col3 = st.columns([6, 1, 1])
+    # Three columns: Todo text | Edit button | Done button
+    col_text, col_edit, col_done = st.columns([6, 2, 2])
 
-    # Checkbox column
-    with col1:
-        checkbox = st.checkbox(todo.strip(), key=f"check_{index}")
+    # Show the todo text
+    with col_text:
+        st.write(todo.strip())
 
-    # Edit button column
-    with col2:
-        if st.button("✏️", key=f"edit_{index}"):
+    # Edit button with text next to pen
+    with col_edit:
+        if st.button("✏️ Edit", key=f"edit_{index}"):
             st.session_state[f"editing_{index}"] = True
 
-    # Delete if checked
-    if checkbox:
-        todos.pop(index)
-        functions.write_todos(todos)
-        st.experimental_rerun()
+    # Done button with text next to tick
+    with col_done:
+        if st.button("✅ Done", key=f"done_{index}"):
+            to_delete.append(index)
 
-    # Show edit input if editing
+
+    # Edit mode input below the row if active
     if st.session_state.get(f"editing_{index}", False):
         new_value = st.text_input(
             "Edit todo:",
             value=todo.strip(),
             key=f"input_{index}"
         )
-
         if st.button("Save", key=f"save_{index}"):
             todos[index] = new_value + "\n"
             functions.write_todos(todos)
             st.session_state[f"editing_{index}"] = False
-            st.experimental_rerun()
+            st.rerun()  # safe rerun after editing
+
+# --- Remove completed todos safely ---
+if to_delete:
+    for index in sorted(to_delete, reverse=True):
+        todos.pop(index)
+    functions.write_todos(todos)
+    st.rerun()  # safe rerun after deletion
