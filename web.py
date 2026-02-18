@@ -7,11 +7,18 @@ def add_todo():
     todo = st.session_state["new_todo"] + "\n"
     todos.append(todo)
     functions.write_todos(todos)
+    st.session_state["new_todo"] = ""  # clear input
+    st.experimental_rerun()  # refresh app to show new todo
 
 st.title("My Todo App")
 st.subheader("This is my todo app.")
 st.write("This app is to increase your productivity.")
 
+# --- Add todo input and button ---
+st.text_input("Add a new todo:", key="new_todo")
+st.button("Add", on_click=add_todo)
+
+# --- Show todos ---
 for index, todo in enumerate(todos):
     col1, col2, col3 = st.columns([6, 1, 1])
 
@@ -28,7 +35,7 @@ for index, todo in enumerate(todos):
     if checkbox:
         todos.pop(index)
         functions.write_todos(todos)
-        st.rerun()
+        st.experimental_rerun()
 
     # Show edit input if editing
     if st.session_state.get(f"editing_{index}", False):
@@ -42,4 +49,4 @@ for index, todo in enumerate(todos):
             todos[index] = new_value + "\n"
             functions.write_todos(todos)
             st.session_state[f"editing_{index}"] = False
-            st.rerun()
+            st.experimental_rerun()
