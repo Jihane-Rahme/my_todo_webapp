@@ -4,6 +4,8 @@ import functions  # your get_todos() and write_todos() functions
 # --- Load todos ---
 todos = functions.get_todos()
 
+st.set_page_config(layout="wide")
+
 # --- Function to add a new todo ---
 def add_todo():
     new = st.session_state["new_todo"].strip()
