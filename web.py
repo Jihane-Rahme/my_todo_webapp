@@ -14,7 +14,9 @@ def add_todo():
 
 # --- App layout ---
 st.title("My Todo App")
-st.subheader("Increase your productivity!")
+st.subheader("This is my todo app.")
+st.write("<h1>Increase your <b>productivity!</b></h1>",
+             unsafe_allow_html=True)
 
 # Input to add todos
 st.text_input("Add a new todo:", key="new_todo")
